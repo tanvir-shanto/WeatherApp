@@ -1,11 +1,29 @@
 let weather = {
     apiKey: "9e42a5dbd04b177c3dc6368db4d38f18",
 
-    fetchWeather: function(city) {
-        fetch("https://api.openweathermap.org/data/2.5/weather?q=" +
-        city +
-        "&units=metric&appid=" +
-        this.apiKey)
+    // Get the latitude and longitude for more accurate results
+    fetchLocation: function(city) {
+        fetch("http://api.openweathermap.org/geo/1.0/direct?q=" + city +
+        "&limit=1&appid=" + this.apiKey)
+        .then((response) => response.json())
+        .then((data) => weather.findLatLon(data));
+    },
+
+    findLatLon: function (data) {
+
+        const {lat} = data[0];
+        const {lon} = data[0];
+
+        console.log(data);
+
+        console.log("lat" + lat);
+        console.log("lon" + lon);
+
+        weather.fetchWeather(lat, lon);
+    },
+
+    fetchWeather: function(lat, lon) {
+        fetch("https://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&appid="+ this.apiKey)
         .then((response) => response.json())
         .then((data) => this.displayWeather(data));
     },
@@ -32,7 +50,7 @@ let weather = {
 
     // Search for the weather
     search: function() {
-        weather.fetchWeather(document.querySelector(".search-bar").value);
+        weather.fetchLocation(document.querySelector(".search-bar").value);
     }
 };
 
